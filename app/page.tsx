@@ -5,8 +5,15 @@ import { useRef, useState } from "react";
 const FALLBACK_ERROR =
   "Something didn't work on our side. Please try again in a moment.";
 
-type Step = { heading: string; body: string };
-type Card = { title: string; situation: string; steps: Step[] };
+type Step = { heading: string; body: string; icon?: string };
+type PlanCard = {
+  type: "plan";
+  title: string;
+  situation: string;
+  steps: Step[];
+};
+type AnswerCard = { type: "answer"; title: string; body: string };
+type Card = PlanCard | AnswerCard;
 type Result = { card: Card } | { answer: string };
 
 const PERSONAS: { label: string; starter: string }[] = [
@@ -225,10 +232,17 @@ export default function Home() {
                   <h2 className="font-serif text-3xl sm:text-4xl text-balance">
                     {result.card.title}
                   </h2>
-                  <p className="text-xl text-ink-soft leading-relaxed">
-                    {result.card.situation}
-                  </p>
+                  {result.card.type === "plan" && (
+                    <p className="text-xl text-ink-soft leading-relaxed">
+                      {result.card.situation}
+                    </p>
+                  )}
                 </div>
+                {result.card.type === "answer" ? (
+                  <p className="max-w-[65ch] text-xl leading-relaxed whitespace-pre-wrap">
+                    {result.card.body}
+                  </p>
+                ) : (
                 <ol className="flex flex-col divide-y divide-line">
                   {result.card.steps.map((step, i) => {
                     const question = extractQuestion(step.body);
@@ -262,6 +276,7 @@ export default function Home() {
                     );
                   })}
                 </ol>
+                )}
               </div>
             ) : (
               <div className="rounded-2xl border border-line bg-white px-6 py-6 text-xl leading-relaxed whitespace-pre-wrap">
